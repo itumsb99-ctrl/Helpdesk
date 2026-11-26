@@ -1,14 +1,14 @@
 <?php
 
-namespace App\\Console\\Commands;
+namespace App\Console\Commands;
 
-use App\\Models\\Ticket;
-use App\\Models\\TicketHistory;
-use App\\Models\\User;
-use App\\Notifications\\SlaTicketNotification;
-use Illuminate\\Console\\Command;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Support\\Facades\\Notification;
+use App\Models\Ticket;
+use App\Models\TicketHistory;
+use App\Models\User;
+use App\Notifications\SlaTicketNotification;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class CheckTicketSla extends Command
 {
