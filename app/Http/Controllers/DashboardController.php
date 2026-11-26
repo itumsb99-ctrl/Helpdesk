@@ -15,21 +15,28 @@ class DashboardController extends Controller
         if ($user->role === 'teknisi') $query->where('technician_id', $user->id);
 
         $tickets = (clone $query)->with(['category','requester','technician'])->latest()->limit(8)->get();
+        $overdueQuery = (clone $query)->whereNotIn('status', ['resolved','closed'])
+            ->where(function ($q) {
+                $q->where(function ($r) {
+                    $r->whereNull('first_response_at')->whereNotNull('response_due_at')->where('response_due_at','<',now());
+                })->orWhere(function ($s) {
+                    $s->whereNotNull('resolution_due_at')->where('resolution_due_at','<',now());
+                });
+            });
+
         $counts = [
             'total'=>(clone $query)->count(),
             'open'=>(clone $query)->whereIn('status',['open','assigned'])->count(),
             'progress'=>(clone $query)->where('status','in_progress')->count(),
             'resolved'=>(clone $query)->whereIn('status',['resolved','closed'])->count(),
-            'overdue'=>(clone $query)->whereNotIn('status',['resolved','closed'])->where('resolution_due_at','<',now())->count(),
+            'overdue'=>(clone $overdueQuery)->count(),
         ];
-
+        $overdueTickets = (clone $overdueQuery)->with(['requester','technician'])->orderBy('resolution_due_at')->limit(10)->get();
         $trend = (clone $query)->selectRaw('DATE(created_at) as day, COUNT(*) as total')
-            ->where('created_at','>=',now()->subDays(6)->startOfDay())
-            ->groupBy('day')->orderBy('day')->get();
-
+            ->where('created_at','>=',now()->subDays(6)->startOfDay())->groupBy('day')->orderBy('day')->get();
         $statusLabels = ['open'=>'Baru','assigned'=>'Ditugaskan','in_progress'=>'Diproses','pending'=>'Menunggu','resolved'=>'Selesai','closed'=>'Ditutup'];
         $statusData = (clone $query)->select('status', DB::raw('COUNT(*) as total'))->groupBy('status')->get();
 
-        return view('dashboard', compact('tickets','counts','trend','statusLabels','statusData'));
+        return view('dashboard', compact('tickets','counts','trend','statusLabels','statusData','overdueTickets'));
     }
 }
