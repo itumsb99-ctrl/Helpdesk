@@ -7,6 +7,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TicketAttachmentController;
 use App\Http\Controllers\TicketReportController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\UnitController;
 
 Route::get('/', fn () => auth()->check() ? redirect()->route('dashboard') : redirect()->route('login'));
 Route::middleware('guest')->group(function () {
@@ -24,6 +26,10 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:admin')->group(function () {
         Route::resource('users', UserController::class)->only(['index','create','store']);
+        Route::resource('categories', CategoryController::class)->except(['show','destroy']);
+        Route::patch('/categories/{category}/toggle', [CategoryController::class, 'toggle'])->name('categories.toggle');
+        Route::resource('units', UnitController::class)->except(['show','destroy']);
+        Route::patch('/units/{unit}/toggle', [UnitController::class, 'toggle'])->name('units.toggle');
         Route::prefix('reports/tickets')->name('reports.tickets.')->group(function () { Route::get('/', [TicketReportController::class, 'index'])->name('index'); Route::get('/excel', [TicketReportController::class, 'excel'])->name('excel'); Route::get('/pdf', [TicketReportController::class, 'pdf'])->name('pdf'); });
     });
 
