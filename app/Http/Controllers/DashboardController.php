@@ -90,10 +90,10 @@ class DashboardController extends Controller
             ->orderByRaw('CASE WHEN first_response_at IS NULL AND response_due_at IS NOT NULL AND response_due_at <= ? THEN response_due_at ELSE COALESCE(resolution_due_at, response_due_at) END ASC', [$warningWindow])
             ->limit(20)
             ->get()
-            ->map(function (Ticket $ticket) use ($now) {
+            ->map(function (Ticket $ticket) use ($now, $warningWindow) {
                 $monitoring = [];
 
-                if (!$ticket->first_response_at && $ticket->response_due_at) {
+                if (!$ticket->first_response_at && $ticket->response_due_at && $ticket->response_due_at->lessThanOrEqualTo($warningWindow)) {
                     $overdue = $ticket->response_due_at->lessThanOrEqualTo($now);
 
                     $monitoring[] = [
@@ -104,7 +104,7 @@ class DashboardController extends Controller
                     ];
                 }
 
-                if ($ticket->resolution_due_at) {
+                if ($ticket->resolution_due_at && $ticket->resolution_due_at->lessThanOrEqualTo($warningWindow)) {
                     $overdue = $ticket->resolution_due_at->lessThanOrEqualTo($now);
 
                     $monitoring[] = [
