@@ -11,6 +11,7 @@ use App\Models\TicketHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class TicketController extends Controller
 {
@@ -36,7 +37,7 @@ class TicketController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:180'],
             'description' => ['required', 'string', 'max:10000'],
-            'category_id' => ['required', 'exists:categories,id'],
+            'category_id' => ['required', Rule::exists('categories', 'id')->where('is_active', true)],
             'priority' => ['required', 'in:low,medium,high,critical'],
             'location' => ['required', 'string', 'max:180'],
             'unit_id' => ['required', 'exists:units,id'],
