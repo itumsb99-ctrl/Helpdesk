@@ -100,7 +100,7 @@ class DashboardController extends Controller
                         'label' => $overdue ? 'Respons terlambat' : 'Batas respons mendekat',
                         'state' => $overdue ? 'overdue' : 'warning',
                         'due_at' => $ticket->response_due_at,
-                        'duration' => $ticket->response_due_at->diffForHumans($now, ['parts' => 2, 'short' => true]),
+                        'duration' => $ticket->response_due_at->diffForHumans($now, true),
                     ];
                 }
 
@@ -111,7 +111,7 @@ class DashboardController extends Controller
                         'label' => $overdue ? 'Penyelesaian terlambat' : 'Batas penyelesaian mendekat',
                         'state' => $overdue ? 'overdue' : 'warning',
                         'due_at' => $ticket->resolution_due_at,
-                        'duration' => $ticket->resolution_due_at->diffForHumans($now, ['parts' => 2, 'short' => true]),
+                        'duration' => $ticket->resolution_due_at->diffForHumans($now, true),
                     ];
                 }
 
