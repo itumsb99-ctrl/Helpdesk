@@ -10,7 +10,7 @@ class Ticket extends Model
 {
     protected $fillable = [
         'ticket_number','title','description','priority','status','location','unit',
-        'category_id','user_id','technician_id','response_due_at','resolution_due_at',
+        'category_id','unit_id','user_id','technician_id','response_due_at','resolution_due_at',
         'first_response_at','resolved_at','closed_at','escalated_at'
     ];
     protected function casts(): array
@@ -22,6 +22,7 @@ class Ticket extends Model
         ];
     }
     public function category(): BelongsTo { return $this->belongsTo(Category::class); }
+    public function hospitalUnit(): BelongsTo { return $this->belongsTo(Unit::class, 'unit_id'); }
     public function requester(): BelongsTo { return $this->belongsTo(User::class, 'user_id'); }
     public function technician(): BelongsTo { return $this->belongsTo(User::class, 'technician_id'); }
     public function comments(): HasMany { return $this->hasMany(TicketComment::class); }
