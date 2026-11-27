@@ -1,9 +1,9 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use App\\Models\\Ticket;
-use Illuminate\\Support\\Facades\\DB;
+use App\Models\Ticket;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
