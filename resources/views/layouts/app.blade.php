@@ -13,7 +13,7 @@
 <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard')?'active':'' }}"><i class="bi bi-grid me-2"></i>Dashboard</a>
 <a href="{{ route('tickets.index') }}" class="{{ request()->routeIs('tickets.*')?'active':'' }}"><i class="bi bi-ticket-detailed me-2"></i>Tiket</a>
 @if(auth()->user()->role==='admin')<a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*')?'active':'' }}"><i class="bi bi-people me-2"></i>Pengguna</a>@endif
-</nav><div class="mt-4 pt-3 border-top border-secondary small text-white-50">Login sebagai</div><div class="fw-semibold">{{ auth()->user()->name }}</div><div class="small text-white-50 text-capitalize mb-3">{{ auth()->user()->role }}</div>
+<a href="{{ route('reports.tickets.index') }}" class="{{ request()->routeIs('reports.tickets.*')?'active':'' }}"><i class="bi bi-file-earmark-bar-graph me-2"></i>Laporan Tiket</a></nav><div class="mt-4 pt-3 border-top border-secondary small text-white-50">Login sebagai</div><div class="fw-semibold">{{ auth()->user()->name }}</div><div class="small text-white-50 text-capitalize mb-3">{{ auth()->user()->role }}</div>
 <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn btn-outline-light btn-sm w-100"><i class="bi bi-box-arrow-right me-2"></i>Keluar</button></form>
 </aside><main class="main flex-grow-1 p-3 p-lg-4">
 <div class="d-flex justify-content-between align-items-center mb-4"><div><div class="text-secondary small">Sistem Layanan Teknologi Informasi</div><h4 class="mb-0 fw-bold">@yield('heading','Dashboard')</h4></div>
