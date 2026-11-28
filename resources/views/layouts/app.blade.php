@@ -8,7 +8,7 @@
 </head><body>
 @if(auth()->check())
 <div class="d-flex app-shell"><aside class="sidebar p-3">
-<div class="d-flex align-items-center gap-2 mb-2"><img src="{{ asset('images/unimedika-logo.jpg') }}" alt="Logo Rumah Sakit UniMedika" class="brand-logo"><div><div class="brand fs-6">UNIMEDIKA</div><div class="brand-subtitle">IT Helpdesk<br>Setu Bekasi</div></div></div><div class="small text-white-50 mb-4">Rumah Sakit UniMedika Setu Bekasi</div>
+<div class="d-flex align-items-center gap-2 mb-2"><img src="{{ asset('images/unimedika-logo.png') }}" alt="Logo Rumah Sakit UniMedika" class="brand-logo"><div><div class="brand fs-6">UNIMEDIKA</div><div class="brand-subtitle">IT Helpdesk<br>Setu Bekasi</div></div></div><div class="small text-white-50 mb-4">Rumah Sakit UniMedika Setu Bekasi</div>
 <div class="small text-uppercase text-white-50 mb-2">Menu Utama</div><nav class="navlinks">
 <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard')?'active':'' }}"><i class="bi bi-grid me-2"></i>Dashboard</a>
 <a href="{{ route('tickets.index') }}" class="{{ request()->routeIs('tickets.*')?'active':'' }}"><i class="bi bi-ticket-detailed me-2"></i>Tiket</a>
