@@ -33,10 +33,42 @@ class TicketNotificationService
         $this->send(collect([$technician]), $ticket, 'ticket_assigned');
     }
 
-    private function send(iterable $recipients, Ticket $ticket, string $event): void
+    public function ticketStatusChanged(Ticket $ticket, User $actor, string $oldStatus, string $newStatus): void
+    {
+        $recipients = $this->stakeholders($ticket, $actor);
+        $this->send($recipients, $ticket, 'status_changed', [
+            'old_status' => $oldStatus,
+            'new_status' => $newStatus,
+        ]);
+    }
+
+    public function ticketCommentAdded(Ticket $ticket, User $actor, string $comment): void
+    {
+        $recipients = $this->stakeholders($ticket, $actor);
+        $this->send($recipients, $ticket, 'comment_added', [
+            'comment' => $comment,
+        ]);
+    }
+
+    private function stakeholders(Ticket $ticket, User $actor)
+    {
+        return User::query()
+            ->where('is_active', true)
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->where('id', '!=', $actor->id)
+            ->where(function ($query) use ($ticket) {
+                $query->whereKey($ticket->user_id)
+                    ->orWhere('id', $ticket->technician_id)
+                    ->orWhere('role', 'admin');
+            })
+            ->get();
+    }
+
+    private function send(iterable $recipients, Ticket $ticket, string $event, array $details = []): void
     {
         try {
-            Notification::send($recipients, new TicketEventNotification($ticket, $event));
+            Notification::send($recipients, new TicketEventNotification($ticket, $event, $details));
         } catch (Throwable $exception) {
             Log::error('Gagal mengirim notifikasi email tiket.', [
                 'ticket_id' => $ticket->id,
