@@ -49,21 +49,13 @@ class TicketController extends Controller
         }
         $data['unit'] = $selectedUnit->name;
 
-        $sla = SlaSetting::where('priority', $data['priority'])
-            ->where('is_active', true)
-            ->first();
-
+        $sla = SlaSetting::where('priority', $data['priority'])->where('is_active', true)->first();
         if (!$sla) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'priority' => 'Pengaturan SLA untuk prioritas ini belum aktif. Hubungi Admin IT.'
-                ]);
+            return back()->withInput()->withErrors(['priority' => 'Pengaturan SLA untuk prioritas ini belum aktif. Hubungi Admin IT.']);
         }
 
         $ticket = DB::transaction(function () use ($data, $request, $sla) {
             $now = now();
-
             $ticket = Ticket::create($data + [
                 'ticket_number' => 'HD-' . $now->format('ymd') . '-' . strtoupper(bin2hex(random_bytes(3))),
                 'user_id' => $request->user()->id,
@@ -82,26 +74,49 @@ class TicketController extends Controller
             return $ticket;
         });
 
-        return redirect()
-            ->route('tickets.show', $ticket)
-            ->with('success', 'Tiket berhasil dibuat: ' . $ticket->ticket_number);
+        return redirect()->route('tickets.show', $ticket)->with('success', 'Tiket berhasil dibuat: ' . $ticket->ticket_number);
     }
 
     public function show(Ticket $ticket)
     {
         $this->authorizeTicket($ticket);
-        $ticket->load(['category','requester','technician','comments.user','histories']);
-        $technicians = auth()->user()->role === 'admin' ? User::where('role','teknisi')->where('is_active',true)->orderBy('name')->get() : collect();
-        return view('tickets.show',compact('ticket','technicians'));
+        $ticket->load(['category','requester','technician','comments.user','attachments']);
+        $histories = $ticket->histories()->with('user')->latest()->get();
+        $technicians = auth()->user()->role === 'admin'
+            ? User::where('role','teknisi')->where('is_active',true)->orderBy('name')->get()
+            : collect();
+
+        return view('tickets.show', compact('ticket','technicians','histories'));
     }
 
     public function assign(Request $request, Ticket $ticket)
     {
         $data = $request->validate(['technician_id'=>['required','exists:users,id']]);
         $tech = User::where('role','teknisi')->where('is_active',true)->findOrFail($data['technician_id']);
-        $old = $ticket->technician_id;
-        $ticket->update(['technician_id'=>$tech->id,'status'=>'assigned']);
-        TicketHistory::create(['ticket_id'=>$ticket->id,'user_id'=>$request->user()->id,'event'=>'assigned','old_value'=>(string)$old,'new_value'=>$tech->name]);
+        $oldTechnician = $ticket->technician;
+        $oldStatus = $ticket->status;
+
+        DB::transaction(function () use ($ticket, $tech, $oldTechnician, $oldStatus, $request) {
+            $ticket->update(['technician_id'=>$tech->id,'status'=>'assigned']);
+            TicketHistory::create([
+                'ticket_id' => $ticket->id,
+                'user_id' => $request->user()->id,
+                'event' => 'assigned',
+                'old_value' => $oldTechnician?->name ?? 'Belum ditugaskan',
+                'new_value' => $tech->name,
+            ]);
+
+            if ($oldStatus !== 'assigned') {
+                TicketHistory::create([
+                    'ticket_id' => $ticket->id,
+                    'user_id' => $request->user()->id,
+                    'event' => 'status',
+                    'old_value' => $oldStatus,
+                    'new_value' => 'assigned',
+                ]);
+            }
+        });
+
         return back()->with('success','Teknisi berhasil ditugaskan.');
     }
 
@@ -112,50 +127,42 @@ class TicketController extends Controller
             'note' => ['nullable', 'string', 'max:5000'],
         ]);
 
-        if (
-            $request->user()->role === 'teknisi' &&
-            $ticket->technician_id !== $request->user()->id
-        ) {
+        if ($request->user()->role === 'teknisi' && $ticket->technician_id !== $request->user()->id) {
             abort(403);
         }
 
         $old = $ticket->status;
         $new = $data['status'];
-
         $updates = ['status' => $new];
 
-        if ($new === 'resolved' && !$ticket->resolved_at) {
-            $updates['resolved_at'] = now();
-        }
-
-        if ($new === 'closed' && !$ticket->closed_at) {
-            $updates['closed_at'] = now();
-        }
-
-        // First response hanya dihitung ketika teknisi merespons
-        if (
-            $request->user()->role === 'teknisi' &&
-            !$ticket->first_response_at
-        ) {
-            $updates['first_response_at'] = now();
-        }
+        if ($new === 'resolved' && !$ticket->resolved_at) $updates['resolved_at'] = now();
+        if ($new === 'closed' && !$ticket->closed_at) $updates['closed_at'] = now();
+        if ($request->user()->role === 'teknisi' && !$ticket->first_response_at) $updates['first_response_at'] = now();
 
         DB::transaction(function () use ($ticket, $request, $updates, $old, $new, $data) {
             $ticket->update($updates);
 
-            TicketHistory::create([
-                'ticket_id' => $ticket->id,
-                'user_id' => $request->user()->id,
-                'event' => 'status',
-                'old_value' => $old,
-                'new_value' => $new,
-            ]);
+            if ($old !== $new) {
+                TicketHistory::create([
+                    'ticket_id' => $ticket->id,
+                    'user_id' => $request->user()->id,
+                    'event' => 'status',
+                    'old_value' => $old,
+                    'new_value' => $new,
+                ]);
+            }
 
             if (!empty($data['note'])) {
                 TicketComment::create([
                     'ticket_id' => $ticket->id,
                     'user_id' => $request->user()->id,
                     'body' => $data['note'],
+                ]);
+                TicketHistory::create([
+                    'ticket_id' => $ticket->id,
+                    'user_id' => $request->user()->id,
+                    'event' => 'comment',
+                    'new_value' => 'Catatan tindakan ditambahkan',
                 ]);
             }
         });
@@ -166,10 +173,7 @@ class TicketController extends Controller
     public function comment(Request $request, Ticket $ticket)
     {
         $this->authorizeTicket($ticket);
-
-        $data = $request->validate([
-            'body' => ['required', 'string', 'max:5000'],
-        ]);
+        $data = $request->validate(['body' => ['required', 'string', 'max:5000']]);
 
         DB::transaction(function () use ($request, $ticket, $data) {
             TicketComment::create([
@@ -178,13 +182,8 @@ class TicketController extends Controller
                 'body' => $data['body'],
             ]);
 
-            if (
-                $request->user()->role === 'teknisi' &&
-                !$ticket->first_response_at
-            ) {
-                $ticket->update([
-                    'first_response_at' => now(),
-                ]);
+            if ($request->user()->role === 'teknisi' && !$ticket->first_response_at) {
+                $ticket->update(['first_response_at' => now()]);
             }
 
             TicketHistory::create([
