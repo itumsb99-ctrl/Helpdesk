@@ -1,12 +1,12 @@
 <?php
 
-namespace App\\Services;
+namespace App\Services;
 
-use App\\Models\\Ticket;
-use App\\Models\\User;
-use App\\Notifications\\TicketEventNotification;
-use Illuminate\\Support\\Facades\\Log;
-use Illuminate\\Support\\Facades\\Notification;
+use App\Models\Ticket;
+use App\Models\User;
+use App\Notifications\TicketEventNotification;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Throwable;
 
 class TicketNotificationService
