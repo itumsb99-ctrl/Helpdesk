@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
@@ -25,13 +26,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/tickets/{ticket}/comments', [TicketController::class, 'comment'])->name('tickets.comments');
 
     Route::middleware('role:admin')->group(function () {
+        Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
         Route::resource('users', UserController::class)->only(['index','create','store','edit','update']);
         Route::patch('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
         Route::resource('categories', CategoryController::class)->except(['show','destroy']);
         Route::patch('/categories/{category}/toggle', [CategoryController::class, 'toggle'])->name('categories.toggle');
         Route::resource('units', UnitController::class)->except(['show','destroy']);
         Route::patch('/units/{unit}/toggle', [UnitController::class, 'toggle'])->name('units.toggle');
-        Route::prefix('reports/tickets')->name('reports.tickets.')->group(function () { Route::get('/', [TicketReportController::class, 'index'])->name('index'); Route::get('/excel', [TicketReportController::class, 'excel'])->name('excel'); Route::get('/pdf', [TicketReportController::class, 'pdf'])->name('pdf'); });
+        Route::prefix('reports/tickets')->name('reports.tickets.')->group(function () {
+            Route::get('/', [TicketReportController::class, 'index'])->name('index');
+            Route::get('/excel', [TicketReportController::class, 'excel'])->name('excel');
+            Route::get('/pdf', [TicketReportController::class, 'pdf'])->name('pdf');
+        });
     });
 
     Route::post('/tickets/{ticket}/attachments', [TicketAttachmentController::class, 'store'])->name('tickets.attachments.store');

@@ -17,6 +17,7 @@
 <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.*')?'active':'' }}"><i class="bi bi-tags me-2"></i>Kategori</a>
 <a href="{{ route('units.index') }}" class="{{ request()->routeIs('units.*')?'active':'' }}"><i class="bi bi-hospital me-2"></i>Unit Rumah Sakit</a>
 <a href="{{ route('reports.tickets.index') }}" class="{{ request()->routeIs('reports.tickets.*')?'active':'' }}"><i class="bi bi-file-earmark-bar-graph me-2"></i>Laporan Tiket</a>
+<a href="{{ route('audit-logs.index') }}" class="{{ request()->routeIs('audit-logs.*')?'active':'' }}"><i class="bi bi-clock-history me-2"></i>Riwayat Aktivitas</a>
 @endif</nav><div class="mt-4 pt-3 border-top border-secondary small text-white-50">Login sebagai</div><div class="fw-semibold">{{ auth()->user()->name }}</div><div class="small text-white-50 text-capitalize mb-3">{{ auth()->user()->role }}</div>
 <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn btn-outline-light btn-sm w-100"><i class="bi bi-box-arrow-right me-2"></i>Keluar</button></form>
 </aside><main class="main flex-grow-1 p-3 p-lg-4">
