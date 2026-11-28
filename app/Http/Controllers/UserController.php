@@ -14,7 +14,7 @@ class UserController extends Controller
         $query = User::query()->latest();
         if ($request->filled('q')) {
             $term = $request->string('q')->toString();
-            $query->where(fn ($builder) => $builder->where('name', 'like', "%{$term}%")->orWhere('email', 'like', "%{$term}%")->orWhere('unit', 'like', "%{$term}%"));
+            $query->where(fn ($builder) => $builder->where('employee_id', 'like', "%{$term}%")->orWhere('name', 'like', "%{$term}%")->orWhere('email', 'like', "%{$term}%")->orWhere('unit', 'like', "%{$term}%"));
         }
         if ($request->filled('role') && in_array($request->role, ['admin', 'teknisi', 'pegawai'], true)) $query->where('role', $request->role);
         if ($request->filled('status') && in_array($request->status, ['active', 'inactive'], true)) $query->where('is_active', $request->status === 'active');
@@ -26,12 +26,14 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
+            'employee_id' => ['required', 'string', 'regex:/^SBA[0-9]{3,}$/i', 'max:20', 'unique:users,employee_id'],
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:180', 'unique:users,email'],
             'role' => ['required', 'in:admin,teknisi,pegawai'],
             'unit' => ['nullable', 'string', 'max:120'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
+        $data['employee_id'] = strtoupper($data['employee_id']);
         User::create($data + ['is_active' => true]);
         return redirect()->route('users.index')->with('success', 'Pengguna berhasil ditambahkan.');
     }
@@ -42,11 +44,13 @@ class UserController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
+            'employee_id' => ['required', 'string', 'regex:/^SBA[0-9]{3,}$/i', 'max:20', Rule::unique('users', 'employee_id')->ignore($user->id)],
             'email' => ['required', 'email', 'max:180', Rule::unique('users', 'email')->ignore($user->id)],
             'role' => ['required', 'in:admin,teknisi,pegawai'],
             'unit' => ['nullable', 'string', 'max:120'],
             'password' => ['nullable', 'confirmed', Password::min(8)],
         ]);
+        $data['employee_id'] = strtoupper($data['employee_id']);
         if ($request->user()->is($user) && $data['role'] !== $user->role) {
             return back()->withInput()->withErrors(['role' => 'Anda tidak dapat mengubah role akun sendiri.']);
         }
