@@ -5,7 +5,9 @@
 <div class="row g-3">
  <div class="col-lg-8"><div class="card content-card mb-3"><div class="card-body">
   <div class="d-flex justify-content-between flex-wrap gap-2"><div><div class="text-primary fw-bold">{{ $ticket->ticket_number }}</div><h5 class="fw-bold mt-1">{{ $ticket->title }}</h5></div><span class="badge text-bg-{{ $ticket->isOverdue()?'danger':'primary' }} align-self-start">{{ $ticket->isOverdue()?'SLA Terlambat':strtoupper($ticket->priority) }}</span></div>
-  <p class="text-secondary">{{ $ticket->description }}</p><hr>
+  <p class="text-secondary mb-0">{{ $ticket->description }}</p>
+  @include('tickets.attachments', ['ticket' => $ticket])
+  <hr>
   <div class="row g-3 small"><div class="col-sm-6"><b>Pemohon</b><br>{{ $ticket->requester->name }}</div><div class="col-sm-6"><b>Unit</b><br>{{ $ticket->unit }}</div><div class="col-sm-6"><b>Kategori</b><br>{{ $ticket->category->name }}</div><div class="col-sm-6"><b>Lokasi</b><br>{{ $ticket->location }}</div><div class="col-sm-6"><b>Teknisi</b><br>{{ $ticket->technician->name ?? 'Belum ditugaskan' }}</div><div class="col-sm-6"><b>Status</b><br>{{ ucfirst(str_replace('_',' ',$ticket->status)) }}</div><div class="col-sm-6"><b>Batas respons</b><br>{{ $ticket->response_due_at?->format('d/m/Y H:i') ?? '-' }}</div><div class="col-sm-6"><b>Batas penyelesaian</b><br>{{ $ticket->resolution_due_at?->format('d/m/Y H:i') ?? '-' }}</div></div>
  </div></div>
  <div class="card content-card"><div class="card-body"><h6 class="fw-bold">Catatan & komunikasi</h6>
@@ -23,4 +25,3 @@
  </div>
 </div>
 @endsection
-@include('tickets.attachments', ['ticket' => $ticket])
