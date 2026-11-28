@@ -17,6 +17,7 @@ class Ticket extends Model
     {
         return [
             'response_due_at'=>'datetime','resolution_due_at'=>'datetime',
+            'response_warning_sent_at'=>'datetime','resolution_warning_sent_at'=>'datetime',
             'first_response_at'=>'datetime','resolved_at'=>'datetime',
             'closed_at'=>'datetime','escalated_at'=>'datetime',
         ];

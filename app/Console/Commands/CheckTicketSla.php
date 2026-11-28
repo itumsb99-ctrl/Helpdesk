@@ -8,7 +8,9 @@ use App\Models\User;
 use App\Notifications\SlaTicketNotification;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Throwable;
 
 class CheckTicketSla extends Command
 {
@@ -22,7 +24,7 @@ class CheckTicketSla extends Command
 
         $tickets = Ticket::query()
             ->whereNotIn('status', ['resolved', 'closed'])
-            ->where(function ($query) use ($warningWindow) {
+            ->where(function ($query) use ($warningWindow, $now) {
                 $query->where(function ($q) use ($warningWindow) {
                     $q->whereNull('first_response_at')
                         ->whereNull('response_warning_sent_at')
@@ -154,14 +156,22 @@ class CheckTicketSla extends Command
         }
 
         if ($recipients->isNotEmpty()) {
-            Notification::send($recipients->unique('id'), new SlaTicketNotification(
-                $title,
-                $message,
-                (int) $ticket->id,
-                $ticket->ticket_number,
-                $ticket->priority,
-                $event
-            ));
+            try {
+                Notification::send($recipients->unique('id'), new SlaTicketNotification(
+                    $title,
+                    $message,
+                    (int) $ticket->id,
+                    $ticket->ticket_number,
+                    $ticket->priority,
+                    $event
+                ));
+            } catch (Throwable $exception) {
+                Log::error('Gagal mengirim notifikasi SLA.', [
+                    'ticket_id' => $ticket->id,
+                    'event' => $event,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
         }
     }
 }
