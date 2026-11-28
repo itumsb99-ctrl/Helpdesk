@@ -24,7 +24,7 @@ class CheckTicketSla extends Command
 
         $tickets = Ticket::query()
             ->whereNotIn('status', ['resolved', 'closed'])
-            ->where(function ($query) use ($warningWindow) {
+            ->where(function ($query) use ($warningWindow, $now) {
                 $query->where(function ($q) use ($warningWindow) {
                     $q->whereNull('first_response_at')
                         ->whereNull('response_warning_sent_at')
