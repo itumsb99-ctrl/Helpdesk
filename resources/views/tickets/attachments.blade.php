@@ -1,13 +1,9 @@
 
-<div class="card shadow-sm mt-4">
-    <div class="card-header bg-white">
-        <h5 class="mb-0">
+<div class="border-top mt-4 pt-3">
+        <h6 class="fw-bold mb-3">
             <i class="bi bi-paperclip"></i>
             Lampiran Bukti Gangguan
-        </h5>
-    </div>
-
-    <div class="card-body">
+        </h6>
 
         @if(session('success'))
             <div class="alert alert-success">
@@ -127,5 +123,4 @@
 
         @endforelse
 
-    </div>
 </div>

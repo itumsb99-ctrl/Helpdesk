@@ -4,19 +4,20 @@
 <meta charset="utf-8">
 <style>
 @page { margin: 22px 24px; }
-body { font-family: DejaVu Sans, sans-serif; font-size: 9px; color: #243247; }
-h1 { font-size: 18px; margin: 0 0 5px; }
+body { font-family: DejaVu Sans, sans-serif; font-size: 9px; color: #25404a; }
+h1 { font-size: 18px; margin: 0 0 5px; color: #087f86; }
+.logo { width: 58px; height: 58px; object-fit: contain; }
+.header { width: 100%; border-bottom: 2px solid #9dc42c; margin-bottom: 10px; padding-bottom: 8px; }
 .muted { color: #667085; }
 .summary { width: 100%; margin: 14px 0; border-collapse: collapse; }
 .summary td { border: 1px solid #d9e0e8; padding: 7px; width: 20%; }
 table.data { width: 100%; border-collapse: collapse; }
 .data th, .data td { border: 1px solid #cfd7e2; padding: 5px; vertical-align: top; }
-.data th { background: #eef3f8; text-align: left; }
+.data th { background: #e8f4f1; color:#075b63; text-align: left; }
 </style>
 </head>
 <body>
-<h1>Laporan Tiket IT Helpdesk</h1>
-<div class="muted">Rumah Sakit · Dicetak {{ now()->format('d/m/Y H:i') }}</div>
+<table class="header"><tr><td style="width:68px"><img class="logo" src="{{ public_path('images/unimedika-logo.jpg') }}"></td><td><h1>Rumah Sakit UniMedika Setu Bekasi</h1><strong>Laporan Tiket IT Helpdesk</strong><div class="muted">Sistem Layanan Teknologi Informasi · Dicetak {{ now()->format('d/m/Y H:i') }}</div></td></tr></table>
 <p>
     Periode: {{ $filters['start_date'] ?? 'Semua tanggal' }} s.d. {{ $filters['end_date'] ?? 'Sekarang' }} |
     Unit: {{ $filters['unit'] ?? 'Semua unit' }} |

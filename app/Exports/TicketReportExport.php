@@ -22,10 +22,11 @@ class TicketReportExport implements FromCollection, WithHeadings, WithMapping, S
     public function headings(): array
     {
         return [
-            'No. Tiket', 'Tanggal Dibuat', 'Judul', 'Pemohon', 'Unit', 'Lokasi',
+            ['Rumah Sakit UniMedika Setu Bekasi - Laporan Tiket IT Helpdesk'],
+            ['No. Tiket', 'Tanggal Dibuat', 'Judul', 'Pemohon', 'Unit', 'Lokasi',
             'Kategori', 'Prioritas', 'Status', 'Teknisi', 'Batas Respons SLA',
             'Respons Pertama', 'Batas Penyelesaian SLA', 'Diselesaikan Pada',
-            'Status SLA Respons', 'Status SLA Penyelesaian',
+            'Status SLA Respons', 'Status SLA Penyelesaian'],
         ];
     }
 

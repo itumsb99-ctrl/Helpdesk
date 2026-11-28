@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Dashboard')
-@section('heading', 'Dashboard IT Helpdesk')
+@section('heading', 'Dashboard IT Helpdesk UniMedika')
 
 @section('content')
 <div class="row g-3 mb-4">
@@ -187,8 +187,8 @@ new Chart(document.getElementById('trendChart'), {
         datasets: [{
             label: 'Tiket',
             data: @json($trend->pluck('total')),
-            borderColor: '#2563eb',
-            backgroundColor: 'rgba(37,99,235,.12)',
+            borderColor: '#12a9b0',
+            backgroundColor: 'rgba(18,169,176,.14)',
             fill: true,
             tension: .35
         }]
@@ -205,7 +205,7 @@ new Chart(document.getElementById('statusChart'), {
         labels: @json($statusData->map(fn ($item) => $statusLabels[$item->status] ?? $item->status)),
         datasets: [{
             data: @json($statusData->pluck('total')),
-            backgroundColor: ['#2563eb', '#0ea5e9', '#f59e0b', '#8b5cf6', '#10b981', '#64748b']
+            backgroundColor: ['#12a9b0', '#9dc42c', '#f2c14e', '#0b7880', '#6f9f24', '#8ba6a6']
         }]
     },
     options: { plugins: { legend: { position: 'bottom' } } }

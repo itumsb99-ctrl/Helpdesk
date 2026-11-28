@@ -6,10 +6,12 @@ use App\Models\Category;
 use App\Models\SlaSetting;
 use App\Models\Ticket;
 use App\Models\TicketComment;
+use App\Models\Unit;
 use App\Models\TicketHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class TicketController extends Controller
 {
@@ -27,7 +29,7 @@ class TicketController extends Controller
 
     public function create()
     {
-        return view('tickets.create',['categories'=>Category::where('is_active',true)->orderBy('name')->get()]);
+        return view('tickets.create', ['categories' => Category::where('is_active', true)->orderBy('name')->get(), 'units' => Unit::where('is_active', true)->orderBy('name')->get()]);
     }
 
     public function store(Request $request)
@@ -35,11 +37,17 @@ class TicketController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:180'],
             'description' => ['required', 'string', 'max:10000'],
-            'category_id' => ['required', 'exists:categories,id'],
+            'category_id' => ['required', Rule::exists('categories', 'id')->where('is_active', true)],
             'priority' => ['required', 'in:low,medium,high,critical'],
             'location' => ['required', 'string', 'max:180'],
-            'unit' => ['required', 'string', 'max:120'],
+            'unit_id' => ['required', 'exists:units,id'],
         ]);
+
+        $selectedUnit = Unit::where('is_active', true)->find($data['unit_id']);
+        if (!$selectedUnit) {
+            return back()->withInput()->withErrors(['unit_id' => 'Unit tidak tersedia atau sudah dinonaktifkan.']);
+        }
+        $data['unit'] = $selectedUnit->name;
 
         $sla = SlaSetting::where('priority', $data['priority'])
             ->where('is_active', true)
