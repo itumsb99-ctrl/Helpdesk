@@ -21,7 +21,25 @@
  @if(in_array(auth()->user()->role,['admin','teknisi']) && (auth()->user()->role==='admin' || $ticket->technician_id===auth()->id()))
  <div class="card content-card"><div class="card-body"><h6 class="fw-bold">Update Penanganan</h6><form method="POST" action="{{ route('tickets.status',$ticket) }}">@csrf<select name="status" class="form-select mb-2">@foreach(['assigned','in_progress','pending','resolved','closed'] as $s)<option value="{{ $s }}" @selected($ticket->status===$s)>{{ ucfirst(str_replace('_',' ',$s)) }}</option>@endforeach</select><textarea name="note" class="form-control mb-2" rows="3" placeholder="Catatan tindakan teknisi (opsional)"></textarea><button class="btn btn-success btn-sm w-100">Update Status</button></form></div></div>
  @endif
- <div class="card content-card mt-3"><div class="card-body"><h6 class="fw-bold">Riwayat tiket</h6>@foreach($ticket->histories as $h)<div class="small border-start border-2 ps-2 pb-3 mb-2"><b>{{ str_replace('_',' ',ucfirst($h->event)) }}</b><div class="text-secondary">{{ $h->new_value }} · {{ $h->created_at->format('d/m H:i') }}</div></div>@endforeach</div></div>
+ <div class="card content-card mt-3"><div class="card-body">
+  <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-1"></i>Kronologi Aktivitas</h6>
+  @forelse($histories as $history)
+   <div class="d-flex gap-2 mb-3">
+    <div class="rounded-circle bg-light text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width:34px;height:34px"><i class="bi bi-activity"></i></div>
+    <div class="small border-bottom pb-2 flex-grow-1">
+     <div class="fw-semibold">{{ str_replace('_',' ',ucfirst($history->event)) }}</div>
+     <div class="text-secondary">{{ $history->user?->name ?? 'Sistem Otomatis' }} · {{ $history->created_at->format('d/m/Y H:i:s') }}</div>
+     @if($history->old_value)<div class="mt-1"><span class="text-secondary">Sebelumnya:</span> {{ $history->old_value }}</div>@endif
+     @if($history->new_value)<div><span class="text-secondary">Keterangan:</span> {{ $history->new_value }}</div>@endif
+    </div>
+   </div>
+  @empty
+   <div class="small text-secondary">Belum ada aktivitas.</div>
+  @endforelse
+  @if(auth()->user()->role === 'admin')
+   <a href="{{ route('audit-logs.index', ['q' => $ticket->ticket_number]) }}" class="btn btn-outline-primary btn-sm w-100 mt-2">Lihat di semua riwayat aktivitas</a>
+  @endif
+ </div></div>
  </div>
 </div>
 @endsection
