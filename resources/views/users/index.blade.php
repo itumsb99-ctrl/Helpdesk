@@ -13,28 +13,14 @@
         <div class="col-md-2"><select name="status" class="form-select"><option value="">Semua Status</option><option value="active" @selected(request('status')==='active')>Aktif</option><option value="inactive" @selected(request('status')==='inactive')>Nonaktif</option></select></div>
         <div class="col-md-2 d-flex gap-2"><button class="btn btn-outline-primary w-100">Filter</button><a href="{{ route('users.index') }}" class="btn btn-outline-secondary">Reset</a></div>
     </form>
-    <div class="table-responsive"><table class="table align-middle">
-        <thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Unit / Instalasi</th><th>Status</th><th class="text-end">Aksi</th></tr></thead>
-        <tbody>
-        @forelse($users as $u)
-            <tr>
-                <td class="fw-semibold">{{ $u->name }}</td><td>{{ $u->email }}</td><td><span class="badge text-bg-light border text-capitalize">{{ $u->role }}</span></td><td>{{ $u->unit ?: '-' }}</td>
-                <td><span class="badge {{ $u->is_active ? 'text-bg-success' : 'text-bg-secondary' }}">{{ $u->is_active ? 'Aktif' : 'Nonaktif' }}</span></td>
-                <td class="text-end text-nowrap">
-                    <a href="{{ route('users.edit', $u) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-square"></i> Ubah</a>
-                    @if(auth()->id() !== $u->id)
-                    <form method="POST" action="{{ route('users.toggle', $u) }}" class="d-inline" onsubmit="return confirm('Yakin ingin {{ $u->is_active ? 'menonaktifkan' : 'mengaktifkan' }} akun ini?')">
-                        @csrf @method('PATCH')
-                        <button class="btn btn-sm {{ $u->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}">{{ $u->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
-                    </form>
-                    @endif
-                </td>
-            </tr>
-        @empty
-            <tr><td colspan="6" class="text-center text-secondary py-4">Tidak ada pengguna yang sesuai.</td></tr>
-        @endforelse
-        </tbody>
-    </table></div>
+    <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Unit / Instalasi</th><th>Status</th><th class="text-end">Aksi</th></tr></thead><tbody>
+    @forelse($users as $u)
+        <tr><td class="fw-semibold">{{ $u->name }}</td><td>{{ $u->email }}</td><td><span class="badge text-bg-light border text-capitalize">{{ $u->role }}</span></td><td>{{ $u->unit ?: '-' }}</td><td><span class="badge {{ $u->is_active ? 'text-bg-success' : 'text-bg-secondary' }}">{{ $u->is_active ? 'Aktif' : 'Nonaktif' }}</span></td>
+            <td class="text-end text-nowrap"><a href="{{ route('users.edit', $u) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-square"></i> Ubah</a>
+            @if(auth()->id() !== $u->id)<form method="POST" action="{{ route('users.toggle', $u) }}" class="d-inline" onsubmit="return confirm('Yakin ingin {{ $u->is_active ? 'menonaktifkan' : 'mengaktifkan' }} akun ini?')">@csrf @method('PATCH')<button class="btn btn-sm {{ $u->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}">{{ $u->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button></form>@endif</td>
+        </tr>
+    @empty<tr><td colspan="6" class="text-center text-secondary py-4">Tidak ada pengguna yang sesuai.</td></tr>@endforelse
+    </tbody></table></div>
     {{ $users->links() }}
 </div></div>
 @endsection
