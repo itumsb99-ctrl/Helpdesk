@@ -1,11 +1,11 @@
 <?php
 
-namespace App\\Notifications;
+namespace App\Notifications;
 
-use App\\Models\\Ticket;
-use Illuminate\\Bus\\Queueable;
-use Illuminate\\Notifications\\Messages\\MailMessage;
-use Illuminate\\Notifications\\Notification;
+use App\Models\Ticket;
+use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class TicketEventNotification extends Notification
 {
