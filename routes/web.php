@@ -25,7 +25,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/tickets/{ticket}/comments', [TicketController::class, 'comment'])->name('tickets.comments');
 
     Route::middleware('role:admin')->group(function () {
-        Route::resource('users', UserController::class)->only(['index','create','store']);
+        Route::resource('users', UserController::class)->only(['index','create','store','edit','update']);
+        Route::patch('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
         Route::resource('categories', CategoryController::class)->except(['show','destroy']);
         Route::patch('/categories/{category}/toggle', [CategoryController::class, 'toggle'])->name('categories.toggle');
         Route::resource('units', UnitController::class)->except(['show','destroy']);
@@ -33,19 +34,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('reports/tickets')->name('reports.tickets.')->group(function () { Route::get('/', [TicketReportController::class, 'index'])->name('index'); Route::get('/excel', [TicketReportController::class, 'excel'])->name('excel'); Route::get('/pdf', [TicketReportController::class, 'pdf'])->name('pdf'); });
     });
 
-    Route::post(
-    '/tickets/{ticket}/attachments',
-    [TicketAttachmentController::class, 'store']
-    )->name('tickets.attachments.store');
-
-    Route::get(
-    '/attachments/{attachment}/download',
-    [TicketAttachmentController::class, 'download']
-    )->name('attachments.download');
-
-    Route::delete(
-        '/attachments/{attachment}',
-        [TicketAttachmentController::class, 'destroy']
-    )->name('attachments.destroy');
-    
+    Route::post('/tickets/{ticket}/attachments', [TicketAttachmentController::class, 'store'])->name('tickets.attachments.store');
+    Route::get('/attachments/{attachment}/download', [TicketAttachmentController::class, 'download'])->name('attachments.download');
+    Route::delete('/attachments/{attachment}', [TicketAttachmentController::class, 'destroy'])->name('attachments.destroy');
 });
