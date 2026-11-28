@@ -9,6 +9,7 @@ use App\Models\TicketComment;
 use App\Models\Unit;
 use App\Models\TicketHistory;
 use App\Models\User;
+use App\Services\TicketNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -74,6 +75,8 @@ class TicketController extends Controller
             return $ticket;
         });
 
+        app(TicketNotificationService::class)->ticketCreated($ticket);
+
         return redirect()->route('tickets.show', $ticket)->with('success', 'Tiket berhasil dibuat: ' . $ticket->ticket_number);
     }
 
@@ -116,6 +119,8 @@ class TicketController extends Controller
                 ]);
             }
         });
+
+        app(TicketNotificationService::class)->ticketAssigned($ticket->fresh(), $tech);
 
         return back()->with('success','Teknisi berhasil ditugaskan.');
     }
